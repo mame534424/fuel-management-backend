@@ -199,32 +199,7 @@ export async function expireBooking(req:AuthenticatedRequest,res:Response){
         res.status(500).json({message:"Internal Server Error"});
     }
 }
-// export async function resetBookingQueue(req:AuthenticatedRequest,res:Response){
-//     try {
-//         const stationParam = req.params.stationId;
-//         const stationId = Array.isArray(stationParam) ? stationParam[0] : stationParam;
-//         if(!stationId){
-//             return res.status(400).json({message:"Station ID is required"});
-//         }
-//         // inorder to reset the station booking to 0 , first we have to make the sure that the pending on the station should be null , and then we can reset the last queue to 0 
-//         const pendingBooking=await db.select().from(bookings).where(
-//             and(
-//                 eq(bookings.stationId, stationId),
-//                 eq(bookings.status, "PENDING")
-//             )
-//         );
-//         if(pendingBooking.length>0){
-//             return res.status(400).json({message:"Cannot reset queue, there are pending bookings"});
-//         }
-//         const today=new Date().toISOString().slice(0,10);
-//         await db.update(stationQueueCounter).set({lastQueue:0, date:today}).where(eq(stationQueueCounter.stationId, stationId));
-//         res.status(200).json({message:"Booking queue reset successfully"});
-//     }
-//     catch(error:any){
-//         console.error("Error in resetBookingQueue:", error);
-//         res.status(500).json({message:"Internal Server Error"});
-//     }
-// }
+
 export async function pendingBooking(req:AuthenticatedRequest,res:Response){
     try {
         const bookingParam = req.params.bookingId;
