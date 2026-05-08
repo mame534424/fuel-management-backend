@@ -33,7 +33,7 @@ app.get("/ping", (req, res) => {
   res.json({ message: "pong" });
 });
 
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT;
 console.log("🔥 DEV SOURCE RUNNING");
 
 app.listen(PORT, () => {
