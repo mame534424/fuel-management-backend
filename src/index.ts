@@ -1,12 +1,12 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import authRoutes from "./routes/auth.routes";
-import testRoutes from "./routes/test.routes";
-import stationRouter from "./routes/station.routes";
-import adminRouter from "./routes/admin.routes";
-import bookingRouter from "./routes/booking.routes";
-import managerRouter from "./routes/manager.routes";
+import authRoutes from "./routes/auth.routes.js";
+import testRoutes from "./routes/test.routes.js";
+import stationRouter from "./routes/station.routes.js";
+import adminRouter from "./routes/admin.routes.js";
+import bookingRouter from "./routes/booking.routes.js";
+import managerRouter from "./routes/manager.routes.js";
 
 dotenv.config();
 
