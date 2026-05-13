@@ -16,6 +16,11 @@ The Fuel Backend serves as the core server for the Fuel Management System, handl
 - Comprehensive REST API
 - Type-safe development with TypeScript
 
+### Live Deployment
+
+- **Production URL**: Add your live backend URL here
+- **Environment**: Serves the admin frontend and mobile app API requests
+
 ---
 
 ## 🛠️ Tech Stack
