@@ -2,6 +2,12 @@
 
 A robust, scalable backend server for the Fuel Management System. Built with Express.js, TypeScript, and PostgreSQL, this API provides comprehensive fuel station management, booking systems, and user authentication capabilities.
 
+## Demo Video
+
+[![Watch the Loom walkthrough](https://cdn.loom.com/sessions/thumbnails/39617daace92433c94defa692ca21ea9-with-play.png)](https://www.loom.com/share/39617daace92433c94defa692ca21ea9)
+
+Click the image to watch the backend walkthrough on Loom.
+
 ## 📋 Overview
 
 The Fuel Backend serves as the core server for the Fuel Management System, handling all business logic, data persistence, and API operations. It manages fuel stations, bookings, user roles, and provides real-time queue management.
