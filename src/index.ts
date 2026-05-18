@@ -7,6 +7,7 @@ import stationRouter from "./routes/station.routes.js";
 import adminRouter from "./routes/admin.routes.js";
 import bookingRouter from "./routes/booking.routes.js";
 import managerRouter from "./routes/manager.routes.js";
+import userRouter from "./routes/user.routes.js";
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.use("/stations", stationRouter);
 app.use("/admin", adminRouter);
 app.use("/bookings", bookingRouter);
 app.use("/manager",managerRouter);
+app.use("/user",userRouter);
 console.log("server started");
 
 
