@@ -9,6 +9,6 @@ export function generateToken(user: TokenUser) {
   return jwt.sign(
     { id: user.id, role: user.role },
     process.env.JWT_SECRET as string,
-    { expiresIn: "1d" },
+    { expiresIn: "1d" },// must be managed for the mobile app vs the web app
   );
 }
