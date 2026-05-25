@@ -18,6 +18,14 @@ export async function createBooking(req:AuthenticatedRequest,res:Response){
            and ( eq(bookings.plateNumber, plateNumber),
             eq(bookings.status, "PENDING")
         ));
+        // check whether the user has an active booking or not
+        const userActiveBooking=await db.select().from(bookings).where(
+            and ( eq(bookings.userId, userId),
+            eq(bookings.status, "PENDING")
+        ));
+        if(userActiveBooking.length>0){
+            return res.status(400).json({message:"You already have an active booking"});
+        }
         if(activeBooking.length>0){
             return res.status(400).json({message:"This plate number is already in queue on another station"});
         }
