@@ -3,8 +3,9 @@ import { db } from "../config/db";
 import { bookings, fuelTypes, stationQueueCounter, stations } from "../db/schema";
 import { AuthenticatedRequest } from "../middleware/auth.middleware";
 import { and, asc, eq, sql } from "drizzle-orm";
-import { stat } from "node:fs";
 import { date } from "drizzle-orm/mysql-core";
+import { emitBookingCalled, emitBookingCancelled, emitBookingCompleted} from "../utils/socket-events";
+import { recalculateQueue} from "../services/queue-calculate";
 
 export async function createBooking(req:AuthenticatedRequest,res:Response){
     try {
@@ -134,7 +135,16 @@ export async function completeBooking(req:AuthenticatedRequest,res:Response){
         if(booking.length===0){
             return res.status(404).json({message:"Booking not found"});
         }
-        res.status(200).json({message:"Booking completed successfully",booking:booking[0]});
+        const updated = booking[0];
+
+        await emitBookingCompleted(
+        updated.id
+        );
+
+        await recalculateQueue(
+        updated.stationId
+        );
+        res.status(200).json({message:"Booking completed successfully",booking:updated});
     }
     catch(error:any){
         console.error("Error in completeBooking:", error);
@@ -153,7 +163,17 @@ export async function rejectBooking(req:AuthenticatedRequest,res:Response){
         if(booking.length===0){
             return res.status(404).json({message:"Booking not found"});
         }
-        res.status(200).json({message:"Booking rejected successfully",booking:booking[0]});
+        const updated =
+        booking[0];
+
+        await emitBookingCancelled(
+        updated.id
+        );
+
+        await recalculateQueue(
+        updated.stationId
+        );
+        res.status(200).json({message:"Booking rejected successfully",booking:updated});
     }
     catch(error:any){
         console.error("Error in rejectBooking:", error);
@@ -173,7 +193,17 @@ export async function cancelBooking(req:Request,res:Response){
         if(booking.length===0){
             return res.status(404).json({message:"Booking not found"});
         }
-        res.status(200).json({message:"Booking cancelled successfully",booking:booking[0]});
+        const updated =
+        booking[0];
+
+        await emitBookingCancelled(
+        updated.id
+        );
+
+        await recalculateQueue(
+        updated.stationId
+        );
+        res.status(200).json({message:"Booking cancelled successfully",booking:updated});
     }
     catch(error:any){
         console.error("Error in cancelBooking:", error);
@@ -217,6 +247,115 @@ export async function pendingBooking(req:AuthenticatedRequest,res:Response){
         console.error("Error in pendingBooking:", error);
         res.status(500).json({message:"Internal Server Error"});
     }
+}
+export async function calledBooking(req:AuthenticatedRequest,res:Response){
+    try {
+        const bookingParam = req.params.bookingId;
+        const bookingId = Array.isArray(bookingParam) ? bookingParam[0] : bookingParam;
+        if(!bookingId){
+            return res.status(400).json({message:"Booking ID is required"});
+        }
+        const booking=await db.update(bookings).set({status:"CALLED"}).where(eq(bookings.id, bookingId)).returning();
+        if(booking.length===0){
+            return res.status(404).json({message:"Booking not found"});
+        }
+        const updated = booking[0];
+        await emitBookingCalled(
+        updated.id
+        );
+        
+        res.status(200).json({message:"Booking status set to called successfully",booking:booking[0]});
+    }
+    catch(error:any){
+        console.error("Error in calledBooking:", error);
+        res.status(500).json({message:"Internal Server Error"});
+    }
+}
+export async function getMyActiveBooking(
+  req: AuthenticatedRequest,
+  res: Response
+) {
+
+  try {
+
+    const userId =
+      req.user?.id;
+
+    const activeBooking =
+      await db
+        .select()
+        .from(bookings)
+        .where(
+          and(
+            eq(
+              bookings.userId,
+              userId
+            ),
+
+            eq(
+              bookings.status,
+              "PENDING"
+            )
+          )
+        )
+        .limit(1);
+
+    if (
+      activeBooking.length === 0
+    ) {
+
+      return res.status(404)
+        .json({
+          message:
+            "No active booking",
+        });
+    }
+
+    const booking =
+      activeBooking[0];
+
+    const carsAhead =
+      await db
+        .select({
+          count:
+            sql<number>`count(*)`,
+        })
+        .from(bookings)
+        .where(
+          and(
+            eq(
+              bookings.stationId,
+              booking.stationId
+            ),
+
+            eq(
+              bookings.status,
+              "PENDING"
+            ),
+
+            sql`${bookings.queueNumber}
+              <
+              ${booking.queueNumber}`
+          )
+        );
+
+    res.json({
+      booking,
+      carsAhead:
+        Number(
+          carsAhead[0].count
+        ),
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      message:
+        "Internal server error",
+    });
+  }
 }
 
 

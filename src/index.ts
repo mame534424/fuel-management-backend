@@ -1,4 +1,6 @@
 import express from "express";
+import { Server } from "socket.io";
+import http from "http";
 import cors from "cors";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth.routes.js";
@@ -38,6 +40,56 @@ app.get("/ping", (req, res) => {
 const PORT = process.env.PORT;
 console.log("🔥 DEV SOURCE RUNNING");
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+const server =
+  http.createServer(app);
+
+export const io =
+  new Server(server, {
+
+    cors: {
+      origin: "*",
+    },
+});
+
+io.on(
+  "connection",
+  (socket) => {
+
+    console.log(
+      "Socket connected:",
+      socket.id
+    );
+
+    socket.on(
+      "join_booking",
+      (
+        bookingId
+      ) => {
+
+        socket.join(
+          `booking:${bookingId}`
+        );
+
+        console.log(
+          `Joined booking:${bookingId}`
+        );
+    });
+
+    socket.on(
+      "disconnect",
+      () => {
+
+        console.log(
+          "Socket disconnected"
+        );
+    });
+});
+
+server.listen(
+  5001,
+  () => {
+
+    console.log(
+      "Server running"
+    );
 });

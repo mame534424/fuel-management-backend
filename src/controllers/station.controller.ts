@@ -35,7 +35,7 @@ export async function getNearbyStations(req:Request,res:any){
         POWER(${stations.latitude} - ${Number(latitude)}, 2)
         +
         POWER(${stations.longitude} - ${Number(longitude)}, 2)
-        ) < 0.01
+        ) < 0.1 
         `).orderBy(sql`
         (
         POWER(${stations.latitude} - ${Number(latitude)}, 2)
@@ -43,7 +43,7 @@ export async function getNearbyStations(req:Request,res:any){
         POWER(${stations.longitude} - ${Number(longitude)}, 2)
         )
         `);
-        
+        // will be changed into 0.01 in production
         res.status(200).json(nearbyStations);
     } catch (error) {
         console.error("Error in getNearbyStations:", error);
