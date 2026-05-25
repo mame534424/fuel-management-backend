@@ -22,7 +22,7 @@ export const users = pgTable("users", {
     id: uuid("id").primaryKey().defaultRandom(),
     email: varchar("email", { length: 255 }).unique(),
     password: text("password").notNull(),
-    username: varchar("username", { length: 255 }).notNull(),
+    username: varchar("username", { length: 255 }).notNull().unique(),
     role: roleEnum("role").notNull().default("user"),
     createdBy: uuid("created_by"), // self reference later
     isActive: boolean("is_active").default(true),
@@ -64,7 +64,7 @@ export const bookings=pgTable("bookings",{
     bookingNumber: varchar("booking_number", { length: 30 }).notNull().unique(),
     stationId: uuid("station_id").notNull(),
     fuelTypesId: integer("fuel_type_id").notNull(),
-    userId: uuid("user_id").notNull().unique(),
+    userId: uuid("user_id").references(() => users.id),
     guestEmail: varchar("guest_email", { length: 255 }),
     plateNumber: varchar("plate_number", { length: 30 }).notNull(),
     queueNumber: integer("queue_number").notNull(),

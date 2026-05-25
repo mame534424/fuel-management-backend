@@ -25,13 +25,38 @@ try {
 
 
 
-} catch (error) {
+} catch (error: any) {
     console.error("Error in SignUp:", error);
-    res.status(500).json({message:"Internal Server Error"});
 
-    
+    // Actual postgres error is inside cause
+    const pgError = error.cause;
+
+    // Duplicate key error
+    if (pgError?.code === "23505") {
+
+        // Duplicate email
+        if (pgError.detail?.includes("(email)")) {
+            return res.status(409).json({
+                message: "Email already exists",
+            });
+        }
+
+        // Duplicate username
+        if (pgError.detail?.includes("(username)")) {
+            return res.status(409).json({
+                message: "Username already exists",
+            });
+        }
+
+        return res.status(409).json({
+            message: "Duplicate value",
+        });
+    }
+
+    return res.status(500).json({
+        message: "Internal Server Error",
+    });
 }
-
 }
 
 export const SignIn=async(req:Request,res:Response)=>{
